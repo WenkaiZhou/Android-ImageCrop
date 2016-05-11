@@ -3,8 +3,13 @@
 #### 该项目是博客[《Android 拍照、选择图片并裁剪》](http://blog.csdn.net/xuehuayous/article/details/51324656)的示例。
 
 ## 示例截图
-<br/>
-<div align="center"><img src="https://raw.githubusercontent.com/xuehuayous/Android-ImageCrop/master/screenshot/take_photo.gif" /> <img src="https://raw.githubusercontent.com/xuehuayous/Android-ImageCrop/master/screenshot/pick_picture.gif" /></div>
+<div align="center"> 
+  <table>
+  <tr><th>拍照裁剪</th><th>选择图片裁剪</th>
+  </tr>
+  <tr><td><img src="https://raw.githubusercontent.com/xuehuayous/Android-ImageCrop/master/screenshot/take_photo.gif" /></td><td><img src="https://raw.githubusercontent.com/xuehuayous/Android-ImageCrop/master/screenshot/pick_picture.gif" /></td></tr>
+  </table>
+</div>
 
 ## License
 
