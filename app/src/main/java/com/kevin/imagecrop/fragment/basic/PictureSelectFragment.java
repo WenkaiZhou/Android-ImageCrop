@@ -1,16 +1,24 @@
 package com.kevin.imagecrop.fragment.basic;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import com.kevin.crop.UCrop;
+import com.kevin.imagecrop.R;
 import com.kevin.imagecrop.activity.CropActivity;
 import com.kevin.imagecrop.view.SelectPicturePopupWindow;
 
@@ -61,6 +69,7 @@ public abstract class PictureSelectFragment extends BaseFragment implements Sele
         mTempPhotoPath = Environment.getExternalStorageDirectory() + File.separator + "photo.jpeg";
         mSelectPicturePopupWindow = new SelectPicturePopupWindow(mContext);
         mSelectPicturePopupWindow.setOnSelectedListener(this);
+
     }
 
     @Override
@@ -68,24 +77,69 @@ public abstract class PictureSelectFragment extends BaseFragment implements Sele
         switch (position) {
             case 0:
                 // "拍照"按钮被点击了
-                mSelectPicturePopupWindow.dismissPopupWindow();
-                Intent takeIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                //下面这句指定调用相机拍照后的照片存储的路径
-                takeIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(mTempPhotoPath)));
-                startActivityForResult(takeIntent, CAMERA_REQUEST_CODE);
+                takePhoto();
                 break;
             case 1:
                 // "从相册选择"按钮被点击了
-                mSelectPicturePopupWindow.dismissPopupWindow();
-                Intent pickIntent = new Intent(Intent.ACTION_PICK, null);
-                // 如果限制上传到服务器的图片类型时可以直接写如："image/jpeg 、 image/png等的类型"
-                pickIntent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
-                startActivityForResult(pickIntent, GALLERY_REQUEST_CODE);
+                pickFromGallery();
                 break;
             case 2:
                 // "取消"按钮被点击了
                 mSelectPicturePopupWindow.dismissPopupWindow();
                 break;
+        }
+    }
+
+    /**
+     * Callback received when a permissions request has been completed.
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_STORAGE_READ_ACCESS_PERMISSION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    pickFromGallery();
+                }
+                break;
+            case REQUEST_STORAGE_WRITE_ACCESS_PERMISSION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    takePhoto();
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    private void takePhoto() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN // Permission was added in API Level 16
+                && ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    getString(R.string.permission_write_storage_rationale),
+                    REQUEST_STORAGE_WRITE_ACCESS_PERMISSION);
+        } else {
+            mSelectPicturePopupWindow.dismissPopupWindow();
+            Intent takeIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            //下面这句指定调用相机拍照后的照片存储的路径
+            takeIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(mTempPhotoPath)));
+            startActivityForResult(takeIntent, CAMERA_REQUEST_CODE);
+        }
+    }
+
+    private void pickFromGallery() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN // Permission was added in API Level 16
+                && ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE,
+                    getString(R.string.permission_read_storage_rationale),
+                    REQUEST_STORAGE_READ_ACCESS_PERMISSION);
+        } else {
+            mSelectPicturePopupWindow.dismissPopupWindow();
+            Intent pickIntent = new Intent(Intent.ACTION_PICK, null);
+            // 如果限制上传到服务器的图片类型时可以直接写如："image/jpeg 、 image/png等的类型"
+            pickIntent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+            startActivityForResult(pickIntent, GALLERY_REQUEST_CODE);
         }
     }
 
