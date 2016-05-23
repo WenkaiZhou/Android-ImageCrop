@@ -64,14 +64,26 @@ public class CropActivity extends BaseActivity {
         mGestureCropImageView = mUCropView.getCropImageView();
         mOverlayView = mUCropView.getOverlayView();
 
+        initCropView();
+    }
+
+    /**
+     * 初始化ToolBar
+     */
+    private void initToolBar() {
+        mToolBar.setTitle("裁剪图片");
+        setSupportActionBar(mToolBar);
+        mToolBar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+    }
+
+    /**
+     * 初始化裁剪View
+     */
+    private void initCropView() {
         // 设置允许缩放
         mGestureCropImageView.setScaleEnabled(true);
         // 设置禁止旋转
         mGestureCropImageView.setRotateEnabled(false);
-        // 设置剪切后的最大宽度
-//        mGestureCropImageView.setMaxResultImageSizeX(300);
-        // 设置剪切后的最大高度
-//        mGestureCropImageView.setMaxResultImageSizeY(300);
 
         // 设置外部阴影颜色
         mOverlayView.setDimmedColor(Color.parseColor("#AA000000"));
@@ -84,26 +96,6 @@ public class CropActivity extends BaseActivity {
 
         final Intent intent = getIntent();
         setImageData(intent);
-    }
-
-    /**
-     * 初始化ToolBar
-     */
-    private void initToolBar() {
-        mToolBar.setTitle("裁剪图片");
-        setSupportActionBar(mToolBar);
-        mToolBar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-    }
-
-    @Override
-    protected void initEvents() {
-        mGestureCropImageView.setTransformImageListener(mImageListener);
-        mSaveFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                cropAndSaveImage();
-            }
-        });
     }
 
     private void setImageData(Intent intent) {
@@ -146,6 +138,17 @@ public class CropActivity extends BaseActivity {
                 Log.w(TAG, "EXTRA_MAX_SIZE_X and EXTRA_MAX_SIZE_Y must be greater than 0");
             }
         }
+    }
+
+    @Override
+    protected void initEvents() {
+        mGestureCropImageView.setTransformImageListener(mImageListener);
+        mSaveFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cropAndSaveImage();
+            }
+        });
     }
 
     private void cropAndSaveImage() {
