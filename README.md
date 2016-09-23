@@ -1,6 +1,7 @@
 # Android-ImageCrop
 
 #### 该项目是博客[《Android 拍照、选择图片并裁剪》](http://blog.csdn.net/xuehuayous/article/details/51324656)的示例。
+#### 使用的裁剪库[Android-Crop](https://github.com/xuehuayous/Android-Crop)
 
 ## 示例截图
 <div> 
