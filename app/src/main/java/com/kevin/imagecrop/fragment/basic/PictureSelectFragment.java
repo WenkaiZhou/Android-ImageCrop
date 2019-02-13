@@ -67,7 +67,6 @@ public abstract class PictureSelectFragment extends BaseFragment implements Sele
         mTempPhotoPath = Environment.getExternalStorageDirectory() + File.separator + "photo.jpeg";
         mSelectPicturePopupWindow = new SelectPicturePopupWindow(mContext);
         mSelectPicturePopupWindow.setOnSelectedListener(this);
-
     }
 
     @Override

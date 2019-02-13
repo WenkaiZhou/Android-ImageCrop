@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -75,54 +74,6 @@ public abstract class BaseFragment extends Fragment {
 		initViews(view);
 		initData();
 		initEvents();
-	}
-
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-//		LogUtils.i(getFragmentName() + " onActivityCreated()");
-	}
-
-	@Override
-	public void onStart() {
-		super.onStart();
-//		LogUtils.i(getFragmentName() + " onStart()");
-	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-//		LogUtils.i(getFragmentName() + " onResume()");
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
-//		LogUtils.i(getFragmentName() + " onPause()");
-	}
-
-	@Override
-	public void onStop() {
-		super.onStop();
-//		LogUtils.i(getFragmentName() + " onStop()");
-	}
-
-	@Override
-	public void onDestroyView() {
-		super.onDestroyView();
-//		LogUtils.i(getFragmentName() + " onDestroyView()");
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-//		LogUtils.i(getFragmentName() + " onDestroy()");
-	}
-
-	@Override
-	public void onDetach() {
-		super.onDetach();
-//		LogUtils.i(getFragmentName() + " onDetach()");
 	}
 
 	/**
