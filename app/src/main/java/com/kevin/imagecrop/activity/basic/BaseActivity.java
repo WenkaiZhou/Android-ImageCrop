@@ -2,14 +2,12 @@ package com.kevin.imagecrop.activity.basic;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.ViewConfiguration;
 
 import com.kevin.imagecrop.KevinApplication;
 
 import java.lang.reflect.Field;
-
-import butterknife.ButterKnife;
 
 /**
  * 版权所有：XXX有限公司</br>
@@ -22,7 +20,7 @@ import butterknife.ButterKnife;
  *         注:如果您修改了本类请填写以下内容作为记录，如非本人操作劳烦通知，谢谢！！！</br>
  * @author mender，Modified Date Modify Content:
  */
-public abstract class BaseActivity extends ActionBarActivity {
+public abstract class BaseActivity extends AppCompatActivity {
 
 	protected Context mContext			= null;
 
@@ -34,7 +32,6 @@ public abstract class BaseActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
 
 		initContentView();
-		ButterKnife.bind(this);
 		init();
 		initViews();
 		initEvents();
@@ -55,16 +52,6 @@ public abstract class BaseActivity extends ActionBarActivity {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	protected void onStart() {
-		super.onStart();
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		ButterKnife.unbind(this);
 	}
 
 	public void finish() {

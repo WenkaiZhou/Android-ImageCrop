@@ -16,9 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.kevin.imagecrop.R;
-import com.kevin.imagecrop.activity.basic.BaseActivity;
-
-import butterknife.ButterKnife;
 
 /**
  * 版权所有：----有限公司</br>
@@ -74,7 +71,6 @@ public abstract class BaseFragment extends Fragment {
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 //		LogUtils.i(getFragmentName() + " onViewCreated()");
-		ButterKnife.bind(this, view);
 		init();
 		initViews(view);
 		initData();
@@ -115,7 +111,6 @@ public abstract class BaseFragment extends Fragment {
 	public void onDestroyView() {
 		super.onDestroyView();
 //		LogUtils.i(getFragmentName() + " onDestroyView()");
-		ButterKnife.unbind(this);
 	}
 
 	@Override

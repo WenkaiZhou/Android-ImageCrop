@@ -10,8 +10,6 @@ import android.widget.Toast;
 import com.kevin.imagecrop.R;
 import com.kevin.imagecrop.fragment.basic.PictureSelectFragment;
 
-import butterknife.Bind;
-
 /**
  * 版权所有：XXX有限公司
  *
@@ -26,10 +24,7 @@ import butterknife.Bind;
 public class MainFragment extends PictureSelectFragment {
 
     /** Toolbar */
-    @Bind(R.id.toolbar)
     Toolbar toolbar;
-
-    @Bind(R.id.main_frag_picture_iv)
     ImageView mPictureIv;
 
     public static MainFragment newInstance() {
@@ -43,6 +38,8 @@ public class MainFragment extends PictureSelectFragment {
 
     @Override
     public void initViews(View view) {
+        toolbar = view.findViewById(R.id.toolbar);
+        mPictureIv = view.findViewById(R.id.main_frag_picture_iv);
         initToolbar(toolbar);
     }
 

@@ -23,8 +23,6 @@ import com.kevin.imagecrop.activity.basic.BaseActivity;
 
 import java.io.OutputStream;
 
-import butterknife.Bind;
-
 /**
  * 版权所有：XXX有限公司
  *
@@ -40,14 +38,11 @@ public class CropActivity extends BaseActivity {
 
     private static final String TAG = "CropActivity";
 
-    @Bind(R.id.toolbar)
     Toolbar mToolBar;
-    @Bind(R.id.weixin_act_ucrop)
     UCropView mUCropView;
     GestureCropImageView mGestureCropImageView;
     OverlayView mOverlayView;
 
-    @Bind(R.id.crop_act_save_fab)
     FloatingActionButton mSaveFab;
 
     private Uri mOutputUri;
@@ -55,6 +50,9 @@ public class CropActivity extends BaseActivity {
     @Override
     protected void initContentView() {
         setContentView(R.layout.activity_crop);
+        mToolBar = findViewById(R.id.toolbar);
+        mUCropView = findViewById(R.id.weixin_act_ucrop);
+        mSaveFab = findViewById(R.id.crop_act_save_fab);
     }
 
     @Override
@@ -73,7 +71,7 @@ public class CropActivity extends BaseActivity {
     private void initToolBar() {
         mToolBar.setTitle("裁剪图片");
         setSupportActionBar(mToolBar);
-        mToolBar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+//        mToolBar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
     }
 
     /**

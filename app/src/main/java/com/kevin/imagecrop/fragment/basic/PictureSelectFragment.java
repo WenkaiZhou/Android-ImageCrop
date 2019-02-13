@@ -13,6 +13,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -32,9 +33,9 @@ import java.io.IOException;
  * PictureSelectFragment
  *
  * @author zhou.wenkai ,Created on 2016-3-25 21:17:01
- *         Major Function：<b>带有图片选择功能的Fragment</b>
- *         <p/>
- *         注:如果您修改了本类请填写以下内容作为记录，如非本人操作劳烦通知，谢谢！！！
+ * Major Function：<b>带有图片选择功能的Fragment</b>
+ * <p/>
+ * 注:如果您修改了本类请填写以下内容作为记录，如非本人操作劳烦通知，谢谢！！！
  * @author mender，Modified Date Modify Content:
  */
 public abstract class PictureSelectFragment extends BaseFragment implements SelectPicturePopupWindow.OnSelectedListener {
@@ -112,7 +113,7 @@ public abstract class PictureSelectFragment extends BaseFragment implements Sele
     }
 
     private void takePhoto() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN // Permission was added in API Level 16
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
                 && ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -120,10 +121,19 @@ public abstract class PictureSelectFragment extends BaseFragment implements Sele
                     REQUEST_STORAGE_WRITE_ACCESS_PERMISSION);
         } else {
             mSelectPicturePopupWindow.dismissPopupWindow();
-            Intent takeIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            //下面这句指定调用相机拍照后的照片存储的路径
-            takeIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(mTempPhotoPath)));
-            startActivityForResult(takeIntent, CAMERA_REQUEST_CODE);
+
+            File tempPhotoFile = new File(mTempPhotoPath);
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            // 如果在Android7.0以上,使用FileProvider获取Uri
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                String authority = getContext().getPackageName() + ".fileProvider";
+                Uri contentUri = FileProvider.getUriForFile(getContext(), authority, tempPhotoFile);
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, contentUri);
+            } else {
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(tempPhotoFile));
+            }
+            startActivityForResult(intent, CAMERA_REQUEST_CODE);
         }
     }
 
