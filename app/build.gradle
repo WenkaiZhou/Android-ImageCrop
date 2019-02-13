@@ -22,9 +22,6 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:design:27.1.1'
     implementation 'com.android.support:appcompat-v7:27.1.1'
-    // 图像剪切
-    implementation('com.kevin:crop:1.0.2') {
-        // 如果已经引入 support:appcompat-v7 可以加上这句话
-        exclude group: 'com.android.support', module: 'appcompat-v7'
-    }
+
+    implementation 'com.github.yalantis:ucrop:2.2.2'
 }

@@ -11,17 +11,14 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.kevin.crop.UCrop;
 import com.kevin.imagecrop.R;
-import com.kevin.imagecrop.activity.CropActivity;
 import com.kevin.imagecrop.view.SelectPicturePopupWindow;
+import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -181,10 +178,29 @@ public abstract class PictureSelectFragment extends BaseFragment implements Sele
      * @param uri
      */
     public void startCropActivity(Uri uri) {
+        UCrop.Options options = new UCrop.Options();
+        // 修改标题栏颜色
+        options.setToolbarColor(getResources().getColor(R.color.colorPrimary));
+        // 修改状态栏颜色
+        options.setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
+        // 隐藏底部工具
+        options.setHideBottomControls(true);
+        // 图片格式
+        options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
+        // 设置图片压缩质量
+        options.setCompressionQuality(100);
+        // 是否让用户调整范围(默认false)，如果开启，可能会造成剪切的图片的长宽比不是设定的
+        // 如果不开启，用户不能拖动选框，只能缩放图片
+//        options.setFreeStyleCropEnabled(true);
+
+        // 设置源uri及目标uri
         UCrop.of(uri, mDestinationUri)
+                // 长宽比
                 .withAspectRatio(1, 1)
-                .withMaxResultSize(512, 512)
-                .withTargetActivity(CropActivity.class)
+                // 图片大小
+                .withMaxResultSize(1024, 1024)
+                // 配置参数
+                .withOptions(options)
                 .start(mActivity, this);
     }
 
