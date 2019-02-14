@@ -2,13 +2,17 @@ package com.kevin.imagecrop.fragment;
 
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.kevin.imagecrop.R;
-import com.kevin.imagecrop.fragment.basic.PictureSelectFragment;
 
 /**
  * 版权所有：XXX有限公司
@@ -23,7 +27,6 @@ import com.kevin.imagecrop.fragment.basic.PictureSelectFragment;
  */
 public class MainFragment extends PictureSelectFragment {
 
-    /** Toolbar */
     Toolbar toolbar;
     ImageView mPictureIv;
 
@@ -31,19 +34,20 @@ public class MainFragment extends PictureSelectFragment {
         return new MainFragment();
     }
 
+
     @Override
-    protected int getContentViewId() {
-        return R.layout.fragment_main;
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_main, container, false);
     }
 
     @Override
-    public void initViews(View view) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         toolbar = view.findViewById(R.id.toolbar);
         mPictureIv = view.findViewById(R.id.main_frag_picture_iv);
-        initToolbar(toolbar);
+        initEvents();
     }
 
-    @Override
     public void initEvents() {
         // 设置图片点击监听
         mPictureIv.setOnClickListener(new View.OnClickListener() {
@@ -52,6 +56,7 @@ public class MainFragment extends PictureSelectFragment {
                 selectPicture();
             }
         });
+
         // 设置裁剪图片结果监听
         setOnPictureSelectedListener(new OnPictureSelectedListener() {
             @Override
@@ -60,7 +65,7 @@ public class MainFragment extends PictureSelectFragment {
 
                 String filePath = fileUri.getEncodedPath();
                 String imagePath = Uri.decode(filePath);
-                Toast.makeText(mContext, "图片已经保存到:" + imagePath, Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "图片已经保存到:" + imagePath, Toast.LENGTH_LONG).show();
             }
         });
     }

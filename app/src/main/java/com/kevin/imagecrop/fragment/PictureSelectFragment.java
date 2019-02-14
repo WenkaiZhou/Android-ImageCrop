@@ -1,7 +1,11 @@
-package com.kevin.imagecrop.fragment.basic;
+/*
+ * Copyright (C) 2019 Baidu, Inc. All Rights Reserved.
+ */
+package com.kevin.imagecrop.fragment;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -9,10 +13,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.FileProvider;
-import android.util.Log;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Toast;
 
@@ -35,8 +39,10 @@ import java.io.IOException;
  * 注:如果您修改了本类请填写以下内容作为记录，如非本人操作劳烦通知，谢谢！！！
  * @author mender，Modified Date Modify Content:
  */
-public abstract class PictureSelectFragment extends BaseFragment implements SelectPicturePopupWindow.OnSelectedListener {
+public abstract class PictureSelectFragment extends Fragment implements SelectPicturePopupWindow.OnSelectedListener {
 
+    private static final int REQUEST_STORAGE_READ_ACCESS_PERMISSION = 101;
+    private static final int REQUEST_STORAGE_WRITE_ACCESS_PERMISSION = 102;
     private static final int GALLERY_REQUEST_CODE = 0;    // 相册选图标记
     private static final int CAMERA_REQUEST_CODE = 1;    // 相机拍照标记
     // 拍照临时图片
@@ -57,7 +63,7 @@ public abstract class PictureSelectFragment extends BaseFragment implements Sele
      * 剪切图片
      */
     protected void selectPicture() {
-        mSelectPicturePopupWindow.showPopupWindow(mActivity);
+        mSelectPicturePopupWindow.showPopupWindow(getActivity());
     }
 
     @Override
@@ -65,7 +71,7 @@ public abstract class PictureSelectFragment extends BaseFragment implements Sele
         super.onAttach(activity);
         mDestinationUri = Uri.fromFile(new File(activity.getCacheDir(), "cropImage.jpeg"));
         mTempPhotoPath = Environment.getExternalStorageDirectory() + File.separator + "photo.jpeg";
-        mSelectPicturePopupWindow = new SelectPicturePopupWindow(mContext);
+        mSelectPicturePopupWindow = new SelectPicturePopupWindow(getContext());
         mSelectPicturePopupWindow.setOnSelectedListener(this);
     }
 
@@ -84,6 +90,8 @@ public abstract class PictureSelectFragment extends BaseFragment implements Sele
                 // "取消"按钮被点击了
                 mSelectPicturePopupWindow.dismissPopupWindow();
                 break;
+            default:
+                break;
         }
     }
 
@@ -91,7 +99,7 @@ public abstract class PictureSelectFragment extends BaseFragment implements Sele
      * Callback received when a permissions request has been completed.
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
             case REQUEST_STORAGE_READ_ACCESS_PERMISSION:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -110,7 +118,7 @@ public abstract class PictureSelectFragment extends BaseFragment implements Sele
 
     private void takePhoto() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
-                && ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE,
                     getString(R.string.permission_write_storage_rationale),
@@ -134,8 +142,8 @@ public abstract class PictureSelectFragment extends BaseFragment implements Sele
     }
 
     private void pickFromGallery() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN // Permission was added in API Level 16
-                && ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.READ_EXTERNAL_STORAGE)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
+                && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE,
                     getString(R.string.permission_read_storage_rationale),
@@ -151,20 +159,26 @@ public abstract class PictureSelectFragment extends BaseFragment implements Sele
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == mActivity.RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK) {
             switch (requestCode) {
-                case CAMERA_REQUEST_CODE:   // 调用相机拍照
+                // 调用相机拍照
+                case CAMERA_REQUEST_CODE:
                     File temp = new File(mTempPhotoPath);
                     startCropActivity(Uri.fromFile(temp));
                     break;
-                case GALLERY_REQUEST_CODE:  // 直接从相册获取
+                // 直接从相册获取
+                case GALLERY_REQUEST_CODE:
                     startCropActivity(data.getData());
                     break;
-                case UCrop.REQUEST_CROP:    // 裁剪图片结果
+                // 裁剪图片结果
+                case UCrop.REQUEST_CROP:
                     handleCropResult(data);
                     break;
-                case UCrop.RESULT_ERROR:    // 裁剪图片错误
+                // 裁剪图片错误
+                case UCrop.RESULT_ERROR:
                     handleCropError(data);
+                    break;
+                default:
                     break;
             }
         }
@@ -200,7 +214,7 @@ public abstract class PictureSelectFragment extends BaseFragment implements Sele
                 .withMaxResultSize(1024, 1024)
                 // 配置参数
                 .withOptions(options)
-                .start(mActivity, this);
+                .start(getContext(), this);
     }
 
     /**
@@ -214,7 +228,7 @@ public abstract class PictureSelectFragment extends BaseFragment implements Sele
         if (null != resultUri && null != mOnPictureSelectedListener) {
             Bitmap bitmap = null;
             try {
-                bitmap = MediaStore.Images.Media.getBitmap(mActivity.getContentResolver(), resultUri);
+                bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), resultUri);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
@@ -222,7 +236,7 @@ public abstract class PictureSelectFragment extends BaseFragment implements Sele
             }
             mOnPictureSelectedListener.onPictureSelected(resultUri, bitmap);
         } else {
-            Toast.makeText(mContext, "无法剪切选择图片", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "无法剪切选择图片", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -235,10 +249,9 @@ public abstract class PictureSelectFragment extends BaseFragment implements Sele
         deleteTempPhotoFile();
         final Throwable cropError = UCrop.getError(result);
         if (cropError != null) {
-            Log.e(TAG, "handleCropError: ", cropError);
-            Toast.makeText(mContext, cropError.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), cropError.getMessage(), Toast.LENGTH_LONG).show();
         } else {
-            Toast.makeText(mContext, "无法剪切选择图片", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "无法剪切选择图片", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -250,6 +263,48 @@ public abstract class PictureSelectFragment extends BaseFragment implements Sele
         if (tempFile.exists() && tempFile.isFile()) {
             tempFile.delete();
         }
+    }
+
+    /**
+     * 请求权限
+     * <p>
+     * 如果权限被拒绝过，则提示用户需要权限
+     */
+    protected void requestPermission(final String permission, String rationale, final int requestCode) {
+        if (shouldShowRequestPermissionRationale(permission)) {
+            showAlertDialog(getString(R.string.permission_title_rationale), rationale,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            requestPermissions(new String[]{permission}, requestCode);
+                        }
+                    }, getString(R.string.label_ok), null, getString(R.string.label_cancel));
+        } else {
+            requestPermissions(new String[]{permission}, requestCode);
+        }
+    }
+
+    /**
+     * 显示指定标题和信息的对话框
+     *
+     * @param title                         - 标题
+     * @param message                       - 信息
+     * @param onPositiveButtonClickListener - 肯定按钮监听
+     * @param positiveText                  - 肯定按钮信息
+     * @param onNegativeButtonClickListener - 否定按钮监听
+     * @param negativeText                  - 否定按钮信息
+     */
+    protected void showAlertDialog(String title, String message,
+                                   DialogInterface.OnClickListener onPositiveButtonClickListener,
+                                   String positiveText,
+                                   DialogInterface.OnClickListener onNegativeButtonClickListener,
+                                   String negativeText) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle(title);
+        builder.setMessage(message);
+        builder.setPositiveButton(positiveText, onPositiveButtonClickListener);
+        builder.setNegativeButton(negativeText, onNegativeButtonClickListener);
+        builder.show();
     }
 
     /**

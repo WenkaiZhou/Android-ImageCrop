@@ -74,25 +74,28 @@ public class SelectPicturePopupWindow extends PopupWindow implements View.OnClic
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.picture_selector_take_photo_btn:
-                if(null != mOnSelectedListener) {
+                if (null != mOnSelectedListener) {
                     mOnSelectedListener.OnSelected(v, 0);
                 }
                 break;
             case R.id.picture_selector_pick_picture_btn:
-                if(null != mOnSelectedListener) {
+                if (null != mOnSelectedListener) {
                     mOnSelectedListener.OnSelected(v, 1);
                 }
                 break;
             case R.id.picture_selector_cancel_btn:
-                if(null != mOnSelectedListener) {
+                if (null != mOnSelectedListener) {
                     mOnSelectedListener.OnSelected(v, 2);
                 }
+                break;
+            default:
                 break;
         }
     }
 
     /**
      * 设置选择监听
+     *
      * @param l
      */
     public void setOnSelectedListener(OnSelectedListener l) {
