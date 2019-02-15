@@ -35,9 +35,9 @@ public class SelectPicturePopupWindow extends PopupWindow implements View.OnClic
         super(context);
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mMenuView = inflater.inflate(R.layout.layout_picture_selector, null);
-        takePhotoBtn = (Button) mMenuView.findViewById(R.id.picture_selector_take_photo_btn);
-        pickPictureBtn = (Button) mMenuView.findViewById(R.id.picture_selector_pick_picture_btn);
-        cancelBtn = (Button) mMenuView.findViewById(R.id.picture_selector_cancel_btn);
+        takePhotoBtn = mMenuView.findViewById(R.id.picture_selector_take_photo_btn);
+        pickPictureBtn = mMenuView.findViewById(R.id.picture_selector_pick_picture_btn);
+        cancelBtn = mMenuView.findViewById(R.id.picture_selector_cancel_btn);
         // 设置按钮监听
         takePhotoBtn.setOnClickListener(this);
         pickPictureBtn.setOnClickListener(this);

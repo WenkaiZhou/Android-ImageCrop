@@ -11,8 +11,11 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.FileProvider;
@@ -21,7 +24,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.kevin.imagecrop.R;
-import com.kevin.imagecrop.view.SelectPicturePopupWindow;
+import com.kevin.imagecrop.view.PictureSelectorDialog;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
@@ -31,7 +34,7 @@ import java.io.IOException;
 /**
  * 版权所有：XXX有限公司
  * <p/>
- * PictureSelectFragment
+ * PictureSelectorFragment
  *
  * @author zhou.wenkai ,Created on 2016-3-25 21:17:01
  * Major Function：<b>带有图片选择功能的Fragment</b>
@@ -39,21 +42,31 @@ import java.io.IOException;
  * 注:如果您修改了本类请填写以下内容作为记录，如非本人操作劳烦通知，谢谢！！！
  * @author mender，Modified Date Modify Content:
  */
-public abstract class PictureSelectFragment extends Fragment implements SelectPicturePopupWindow.OnSelectedListener {
+public abstract class PictureSelectorFragment extends Fragment implements PictureSelectorDialog.OnSelectedListener {
 
     private static final int REQUEST_STORAGE_READ_ACCESS_PERMISSION = 101;
     private static final int REQUEST_STORAGE_WRITE_ACCESS_PERMISSION = 102;
-    private static final int GALLERY_REQUEST_CODE = 0;    // 相册选图标记
-    private static final int CAMERA_REQUEST_CODE = 1;    // 相机拍照标记
-    // 拍照临时图片
+    /**
+     * 相册选图标记
+     */
+    private static final int GALLERY_REQUEST_CODE = 0;
+    /**
+     * 相机拍照标记
+     */
+    private static final int CAMERA_REQUEST_CODE = 1;
+    /**
+     * 拍照临时图片
+     */
     private String mTempPhotoPath;
-    // 剪切后图像文件
-    private Uri mDestinationUri;
+    /**
+     * 剪切后图像文件
+     */
+    private Uri mDestination;
 
     /**
      * 选择提示 PopupWindow
      */
-    private SelectPicturePopupWindow mSelectPicturePopupWindow;
+    private PictureSelectorDialog mSelectPictureDialog;
     /**
      * 图片选择的监听回调
      */
@@ -63,16 +76,16 @@ public abstract class PictureSelectFragment extends Fragment implements SelectPi
      * 剪切图片
      */
     protected void selectPicture() {
-        mSelectPicturePopupWindow.showPopupWindow(getActivity());
+        mSelectPictureDialog.show(this);
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        mDestinationUri = Uri.fromFile(new File(activity.getCacheDir(), "cropImage.jpeg"));
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mDestination = Uri.fromFile(new File(getContext().getCacheDir(), "cropImage.jpeg"));
         mTempPhotoPath = Environment.getExternalStorageDirectory() + File.separator + "photo.jpeg";
-        mSelectPicturePopupWindow = new SelectPicturePopupWindow(getContext());
-        mSelectPicturePopupWindow.setOnSelectedListener(this);
+        mSelectPictureDialog = PictureSelectorDialog.getInstance();
+        mSelectPictureDialog.setOnSelectedListener(this);
     }
 
     @Override
@@ -88,31 +101,22 @@ public abstract class PictureSelectFragment extends Fragment implements SelectPi
                 break;
             case 2:
                 // "取消"按钮被点击了
-                mSelectPicturePopupWindow.dismissPopupWindow();
+                mSelectPictureDialog.dismiss();
                 break;
             default:
                 break;
         }
     }
 
-    /**
-     * Callback received when a permissions request has been completed.
-     */
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_STORAGE_READ_ACCESS_PERMISSION:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    pickFromGallery();
-                }
-                break;
-            case REQUEST_STORAGE_WRITE_ACCESS_PERMISSION:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    takePhoto();
-                }
-                break;
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (requestCode == REQUEST_STORAGE_READ_ACCESS_PERMISSION) {
+                pickFromGallery();
+            } else if (requestCode == REQUEST_STORAGE_WRITE_ACCESS_PERMISSION) {
+                takePhoto();
+            }
         }
     }
 
@@ -124,7 +128,7 @@ public abstract class PictureSelectFragment extends Fragment implements SelectPi
                     getString(R.string.permission_write_storage_rationale),
                     REQUEST_STORAGE_WRITE_ACCESS_PERMISSION);
         } else {
-            mSelectPicturePopupWindow.dismissPopupWindow();
+            mSelectPictureDialog.dismiss();
 
             File tempPhotoFile = new File(mTempPhotoPath);
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -149,7 +153,7 @@ public abstract class PictureSelectFragment extends Fragment implements SelectPi
                     getString(R.string.permission_read_storage_rationale),
                     REQUEST_STORAGE_READ_ACCESS_PERMISSION);
         } else {
-            mSelectPicturePopupWindow.dismissPopupWindow();
+            mSelectPictureDialog.dismiss();
             Intent pickIntent = new Intent(Intent.ACTION_PICK, null);
             // 如果限制上传到服务器的图片类型时可以直接写如："image/jpeg 、 image/png等的类型"
             pickIntent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
@@ -182,15 +186,14 @@ public abstract class PictureSelectFragment extends Fragment implements SelectPi
                     break;
             }
         }
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     /**
      * 裁剪图片方法实现
      *
-     * @param uri
+     * @param source
      */
-    public void startCropActivity(Uri uri) {
+    public void startCropActivity(Uri source) {
         UCrop.Options options = new UCrop.Options();
         // 修改标题栏颜色
         options.setToolbarColor(getResources().getColor(R.color.colorPrimary));
@@ -206,12 +209,11 @@ public abstract class PictureSelectFragment extends Fragment implements SelectPi
         // 如果不开启，用户不能拖动选框，只能缩放图片
 //        options.setFreeStyleCropEnabled(true);
 
-        // 设置源uri及目标uri
-        UCrop.of(uri, mDestinationUri)
+        UCrop.of(source, mDestination)
                 // 长宽比
                 .withAspectRatio(1, 1)
                 // 图片大小
-                .withMaxResultSize(1024, 1024)
+                .withMaxResultSize(512, 512)
                 // 配置参数
                 .withOptions(options)
                 .start(getContext(), this);
